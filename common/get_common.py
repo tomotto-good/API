@@ -5,14 +5,17 @@ import warnings
 import requests
 from common.read_ini import ReadIni
 from common.get_path import GetPath
+from common.save_json import SaveJson
 
 
 class GetCommon:
     def __init__(self):
         warnings.simplefilter('ignore', ResourceWarning)
         r = ReadIni()
+        self.s = SaveJson()
         self.g = GetPath()
         self.ip = r.get_ip()
+
         # 获取登录的类型
         self.os = r.get_os()
         # 获取token
@@ -22,6 +25,20 @@ class GetCommon:
             'os': self.os,
             'Authorization': self.token
         }
+
+    def get_vessel_Id(self, vesselName):
+        """
+        获取系统内船信息并写入JSON文件
+        -通过vesselName获取vesselId
+        """
+        url = self.ip + '/api/basic/getVesselList'
+        headers = self.headers
+        r = requests.post(url, headers=headers)
+        self.s.write_json('vessel', r.json()['data'])
+        vessel = self.s.read_json('vessel')
+        for i in vessel:
+            if i['vesselName'] == vesselName:
+                return i['vesselId']
 
     def get_taskId(self, taskType):
         """
@@ -35,7 +52,7 @@ class GetCommon:
         # 获取7天后的时间戳
         timeStamp = int(time.mktime(threeDayAgo.timetuple()))
         a = '000'
-        url = self.ip + '/task/index/addTask'
+        url = self.ip + '/task/index/addTask.json'
         headers = self.headers
         if self.os == '1':
             if taskType == '1':
@@ -142,7 +159,7 @@ class GetCommon:
             headers = self.headers
             data = {
                 'taskId': taskId,
-                'taskType':taskType
+                'taskType': taskType
             }
             r = requests.get(url, headers=headers, params=data)
             if r.json()['msg'] == '成功':
@@ -157,7 +174,7 @@ class GetCommon:
             headers = self.headers
             data = {
                 'taskId': taskId,
-                'taskType':taskType
+                'taskType': taskType
             }
             r = requests.get(url, headers=headers, params=data)
             if r.json()['msg'] == '成功':
@@ -167,3 +184,5 @@ class GetCommon:
                 return str(plId)
             else:
                 print('获取plId失败：{}'.format(r.json()))
+
+

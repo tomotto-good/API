@@ -12,6 +12,8 @@ class GetPath:
         self.PlPath = os.path.join(self.APIPath, 'pl')
         # 获取common目录路径
         self.CommonPath = os.path.join(self.APIPath, 'common')
+        # 获取data目录路径
+        self.dataPath = os.path.join(self.APIPath, 'data')
 
     # 获取模板路径
     def get_pl_path(self, plName):
@@ -19,4 +21,13 @@ class GetPath:
 
     # 获取配置文件路径
     def get_ini_path(self):
-        return os.path.join(self.CommonPath, 'common.ini')
+        return os.path.join(self.APIPath, 'config.ini')
+
+    # 获取用户文件路径
+    def get_json_path(self, fileName):
+        return os.path.join(self.dataPath, fileName + '.json')
+
+    # 获取打尺文件路径
+    def get_foot_path(self, fileName):
+        footPath = os.path.join(self.dataPath, 'foot')
+        return os.path.join(footPath, fileName + '.json')

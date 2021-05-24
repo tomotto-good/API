@@ -4,6 +4,7 @@ import warnings
 import requests
 from common.mysql import Mysql
 from common.read_ini import ReadIni
+from common.save_json import SaveJson
 
 
 class TestCode(unittest.TestCase):
@@ -11,10 +12,13 @@ class TestCode(unittest.TestCase):
     def setUpClass(cls) -> None:
         warnings.simplefilter('ignore', ResourceWarning)
         r = ReadIni()
+        cls.s = SaveJson()
         # 获取登录ip
         cls.ip = r.get_ip()
         # 设置登录的类型
         cls.os = r.get_os()
+        # 获取手机号
+        cls.user = r.get_user()
 
     def test_01_get_code(self):
         """
@@ -26,15 +30,16 @@ class TestCode(unittest.TestCase):
             'os': self.os
         }
         data = {
-            'mobile': '18217484395',
+            'mobile': self.user,
             'areaCode': '86'
         }
         r = requests.get(url, headers=headers, params=data)
-        print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+        print()
         self.assertEqual(r.json()['msg'], '成功')
         # 查询数据库
         mysql = "select params from mesg_sms_send_record where mobile='18217484395' order by id DESC"
         results = Mysql().connect_mysql(mysql=mysql)
+        print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
         # 获取短信验证码
         code = eval(results[0])['code']
         print("code:", code)
@@ -56,3 +61,5 @@ class TestCode(unittest.TestCase):
         # 将token写入配置文件
         ReadIni().write_ini(token)
         print('token写入配置文件成功')
+        # 将用户信息写进json文件
+        self.s.write_json('user', r.json()['data'])

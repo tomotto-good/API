@@ -60,22 +60,22 @@ class TestCollection(unittest.TestCase):
             print('模板校验失败')
 
     # @unittest.skip('跳过')
-    # def test_02_get_pl_info(self):
-    #     """
-    #     根据任务ID获取PL信息
-    #     """
-    #     url = self.ip + '/api/cgi/listPl'
-    #     headers = self.headers
-    #     data = {
-    #         'taskId': self.taskId
-    #     }
-    #     r = requests.get(url, headers=headers, params=data)
-    #     if r.json()['msg'] == '成功':
-    #         print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-    #         response = r.json()['data'][0]
-    #         plId = response['plId']
-    #     else:
-    #         print('获取plId失败：{}'.format(r.json()))
+    def test_02_get_pl_info(self):
+        """
+        根据任务ID获取PL信息
+        """
+        url = self.ip + '/api/cgi/listPl'
+        headers = self.headers
+        data = {
+            'taskId': self.taskId
+        }
+        r = requests.get(url, headers=headers, params=data)
+        if r.json()['msg'] == '成功':
+            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+            response = r.json()['data'][0]
+            plId = response['plId']
+        else:
+            print('获取plId失败：{}'.format(r.json()))
 
     @parameterized.expand(['15618994023', '17621209360'])
     def test_02_select_user(self, telephone):

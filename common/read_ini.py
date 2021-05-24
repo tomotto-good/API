@@ -32,4 +32,6 @@ class ReadIni:
         ip = self.config.get('ip', 'ip')
         return ip
 
-
+    def get_user(self):
+        user = self.config.get('user', 'phone')
+        return user
