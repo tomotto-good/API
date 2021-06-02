@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding:utf-8 -*-
+
 import datetime
 import time
 import unittest
@@ -43,12 +46,7 @@ class TestFoot(unittest.TestCase):
     @parameterized.expand([('杨敏馨测试1', 'Sos', 'Shanghai Port', '军工路码头', '任务描述', '顾鹏')])
     def test_01_add_task(self, vesselName, voyage, portName, terminalName, description, customer):
         """
-        vesselName: 船名
-        voyage: 航次
-        portName: 港口
-        terminalName:码头
-        description:  描述
-        customer:委托人
+        添加任务并将任务信息写入文件
         """
         global taskName
         nowTime = datetime.datetime.now()
@@ -58,7 +56,7 @@ class TestFoot(unittest.TestCase):
         # 获取7天后的时间戳
         timeStamp = int(time.mktime(threeDayAgo.timetuple()))
         a = '000'
-        url = self.ip + '/task/index/addTask.json'
+        url = self.ip + '/task/index/addTask'
         headers = self.headers
         if self.os == '1':
             taskName = '安卓/打尺'
@@ -77,7 +75,8 @@ class TestFoot(unittest.TestCase):
         # 将请求返回数据写入JSON文件
         self.c.write_foot('addTask', r.json()['data'])
 
-    def test_01_import_pl(self, fileName='标准模板'):
+    @parameterized.expand([('清单1', '标准模板')])
+    def test_02_import_pl(self, shippingOrder, fileName):
         """
         验证打尺任务--模板导入
         """
@@ -87,7 +86,7 @@ class TestFoot(unittest.TestCase):
         pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName)
         if pathKey:
             url = self.ip + '/task/mms/createPl'
-            data = {"taskId": taskId, "shippingOrder": "清单1", "lengthUnit": 2, "weightUnit": 1,
+            data = {"taskId": taskId, "shippingOrder": shippingOrder, "lengthUnit": 2, "weightUnit": 1,
                     "pathKey": pathKey}
             headers = self.headers
             r = requests.post(url, data=json.dumps(data), headers=headers)
@@ -95,12 +94,14 @@ class TestFoot(unittest.TestCase):
             self.outPut(url, data, r)
             msg = r.json()['msg']
             self.assertEqual(msg, '成功')
+            self.g.get_plInfo(taskId, self.taskType)
+            return taskId
         else:
             print("清单校验失败")
 
-    @unittest.skip('跳过')
     @parameterized.expand(['15618994023', '17621209360'])
-    def test_02_select_user(self, telephone):
+    @unittest.skip('跳过')
+    def test_03_add_user(self, telephone):
         """
         根据手机号获取人员信息并添加执行人全部PL权限
         """
@@ -146,15 +147,18 @@ class TestFoot(unittest.TestCase):
         elif telephone == '17621209360':
             print('添加龙哥成功')
 
+    @unittest.skip('跳过')
     def test_04_update_pl(self, fileName='数据存在符号'):
         """
         打尺任务-模板变更
         """
+        global plId
         nowTime = datetime.datetime.now()
         # 获取当前时间戳
         nowTimeStamp = int(time.mktime(nowTime.timetuple()))
         # 获取plId
-        plId = self.g.get_plId(self.taskType, taskId)
+        plInfo = self.g.get_plInfo(taskId, self.taskType)
+        plId = plInfo[0]['plId']
         # 模板校验-获取pathKey
         pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName, plId=plId)
         if pathKey:
@@ -184,56 +188,68 @@ class TestFoot(unittest.TestCase):
             self.outPut(url, data, r)
             self.assertEqual(r.json()['msg'], '成功')
 
-    def test_05_foot(self):
-        """
-        获取打尺任务清单信息
-        """
-        taskInfo = self.c.read_foot('addTask')
-        url = self.ip + '/api/mms/listPl'
-        headers = self.headers
-        data = {
-            'taskId': taskInfo['taskId']
-        }
-        r = requests.get(url, headers=headers, params=data)
-        # response
-        print(self.outPut(url, data, r))
-        # 断言
-        self.assertEqual(r.json()['msg'], '成功')
-        self.c.write_foot('pl', r.json()['data'])
-
-    def test_06_foot(self):
-        """
-        获取打尺清单明细信息
-        """
-        global plId
-        plInfo = self.c.read_foot('pl')
-        plId = plInfo[0]['plId']
-        url = self.ip + '/api/mms/getPackListDetail'
-        headers = self.headers
-        data = {
-            'taskId': taskId,
-            'plId': plId,
-        }
-        r = requests.get(url, params=data, headers=headers)
-        self.outPut(url, data, r)
-        self.assertEqual(r.json()['msg'], '成功')
-        self.c.write_foot('detail', r.json()['data'])
-
     def test_07_foot(self):
         """
-        对清单内前5条明细进行打尺
+        开始任务
         """
+        url = self.ip + '/task/index/startTask'
+        data = {
+            'taskId': taskId,
+            'taskType': self.taskType
+        }
+        headers = self.headers
+        r = requests.get(url, headers=headers, params=data)
+        self.outPut(url, data, r)
+        self.assertEqual(r.json()['msg'], '成功')
+
+    @parameterized.expand([('17', '2060', '1060', '明细备注', '860')])
+    def test_08_foot(self, abnormal, realLength, realHeight, remark, realWidth):
+        """
+        对清单内前5条明细进行异常打尺
+        """
+        # 获取系统内场地信息
+        areaInfo = self.g.get_areaList()[0]
+        areaId = areaInfo['areaId']
+        areaName = areaInfo['areaName']
+        url = self.ip + '/api/mms/measured'
+        headers = self.headers
+        nowTime = time.strftime('%Y-%m-%d %H:%M:%S')
+
+        detailInfo = self.g.get_detailInfo(taskId, self.taskType)
+        for i in detailInfo[0:5]:
+            plId = i['plId']
+            plDetailId = i['plDetailId']
+            data = [{"taskId": taskId, "realLength": realLength, "areaId": areaId, "realHeight": realHeight,
+                     "areaName": areaName,
+                     "measureTime": nowTime, "remark": remark, "plId": plId, "plDetailId": plDetailId,
+                     "realWidth": realWidth, "abnormal": abnormal}]
+            data = json.dumps(data, ensure_ascii=False)
+            r = requests.post(url, headers=headers, data=data.encode('utf-8'))
+            print(self.outPut(url, data, r))
+            self.assertEqual(r.json()['msg'], '成功')
+
+    @parameterized.expand([('0', '2060', '1060', '明细备注', '860')])
+    def test_09_foot(self, abnormal, realLength, realHeight, remark, realWidth):
+        """
+        批量调整尺寸
+        """
+        # 获取系统内场地信息
+        areaInfo = self.g.get_areaList()[1]
+        areaId = areaInfo['areaId']
+        areaName = areaInfo['areaName']
+        url = self.ip + '/api/mms/measured'
+        headers = self.headers
+        nowTime = time.strftime('%Y-%m-%d %H:%M:%S')
         detailInfo = self.c.read_foot('detail')
-        detail = detailInfo[0:5]
-        data = {"abnormal": 17, "approve": 0, "areaId": 2, "areaName": "4泊位4002", "cargoName": "集液软管Soft pipe",
-                "cgiUserId": 0, "cgiUserName": "", "createTimeStamp": 1621845515000, "creatorName": "顾鹏",
-                "description": "1月31日", "finishQty": 0, "id": 923181, "importHeight": 1000, "importLength": 1750,
-                "importVolume": 3.06, "importWeight": 395, "importWidth": 1750, "increase": 0, "increment": 0,
-                "isLarge": 0, "licensePlateNumber": "", "measureTimeStamp": 1621849770662, "measurerId": 0,
-                "measurerName": "", "packingStyle": "木箱     Wooden box", "photoQty": 2, "plDetailId": 92318,
-                "plId": 609, "quantity": 1, "realCgiFinishTime": "2021-05-24 17:49:00", "realCgiFinishTimeStamp": 0,
-                "realHeight": 1030, "realLength": 1760, "realVolume": 3.190528, "realWeight": 325, "realWidth": 1760,
-                "remark": "货物概况", "shippingMark": "6011-01-001\/049", "shippingMarkGroup": "6011-01-001\/049",
-                "shippingOrder": "", "signature": "1288,609,16011-01-001\/049", "status": 1, "supplier": "",
-                "taskId": 1288, "taskName": "", "taskType": 1, "updateTimeStamp": 1621845515000, "updaterName": "顾鹏",
-                "measureTime": 1621849770662}
+        for i in detailInfo[5:10]:
+            plId = i['plId']
+            plDetailId = i['plDetailId']
+            data = [{"taskId": taskId, "realLength": realLength, "areaId": areaId, "realHeight": realHeight,
+                     "areaName": areaName,
+                     "measureTime": nowTime, "remark": remark, "plId": plId, "plDetailId": plDetailId,
+                     "realWidth": realWidth, "abnormal": abnormal}]
+            data = json.dumps(data, ensure_ascii=False)
+            r = requests.post(url, headers=headers, data=data.encode('utf-8'))
+            print(self.outPut(url, data, r))
+            self.assertEqual(r.json()['msg'], '成功')
+            print("{} 打尺成功".format(i['shippingMark']))

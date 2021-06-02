@@ -34,69 +34,35 @@ class GetCommon:
         url = self.ip + '/api/basic/getVesselList'
         headers = self.headers
         r = requests.post(url, headers=headers)
+        print("请求：{}\n返回：{} ".format(url, r.json()))
         self.s.write_json('vessel', r.json()['data'])
         vessel = self.s.read_json('vessel')
         for i in vessel:
             if i['vesselName'] == vesselName:
                 return i['vesselId']
 
-    def get_taskId(self, taskType):
+    def get_areaList(self):
         """
-        验证Ios添加任务
+        获取系统内场地Id/名称，返回列表
         """
-        global taskName
-        nowTime = datetime.datetime.now()
-        # 获取当前时间戳
-        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
-        threeDayAgo = (datetime.datetime.now() + datetime.timedelta(days=7))
-        # 获取7天后的时间戳
-        timeStamp = int(time.mktime(threeDayAgo.timetuple()))
-        a = '000'
-        url = self.ip + '/task/index/addTask.json'
-        headers = self.headers
-        if self.os == '1':
-            if taskType == '1':
-                taskName = '安卓/打尺'
-            elif taskType == '2':
-                taskName = '安卓/监装'
-            elif taskType == '3':
-                taskName = '安卓/监卸'
-            elif taskType == '5':
-                taskName = '安卓/集港'
-        elif self.os == '2':
-            if taskType == '1':
-                taskName = 'IOS/打尺'
-            elif taskType == '2':
-                taskName = 'IOS/监装'
-            elif taskType == '3':
-                taskName = 'IOS/监卸'
-            elif taskType == '5':
-                taskName = 'IOS/集港'
 
-        data = {"taskName": taskName, "taskType": taskType, "vesselName": "杨敏馨测试1",
-                "vesselId": "63", "voyage": "SOS",
-                "portName": "Shanghai Port", "terminalName": "军工路码头", "customer": "顾鹏",
-                "expectStartTime": str(nowTimeStamp) + a, "expectEndTime": str(timeStamp) + a,
-                "expectBerthTime": str(nowTimeStamp) + a, "expectDepartureTime": str(timeStamp) + a,
-                "description": "任务描述"}
-        r = requests.post(url, data=json.dumps(data), headers=headers)
+        url = self.ip + '/api/basic/getAreaList'
+        headers = self.headers
+        data = {
+            'terminalId': '1'
+        }
+        r = requests.get(url, headers=headers, params=data)
         print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-        if taskType == '1' and r.json()['msg'] == '成功':
-            print('创建打尺任务成功')
-            taskId = r.json()['data']['taskId']
-            return taskId
-        elif taskType == '2' and r.json()['msg'] == '成功':
-            print("创建监装任务成功")
-            taskId = r.json()['data']['taskId']
-            return taskId
-        elif taskType == '3' and r.json()['msg'] == '成功':
-            print("创建监卸任务成功")
-            taskId = r.json()['data']['taskId']
-            return taskId
-        elif taskType == '5' and r.json()['msg'] == '成功':
-            print("创建集港任务成功")
-            taskId = r.json()['data']['taskId']
-            return taskId
+        areaList = r.json()['data']
+        b = []
+        for i in areaList:
+            a = {}
+            a['areaId'] = i['areaId']
+            a['areaName'] = i['region'] + i['number']
+            b.append(a)
+        self.s.write_json('areaList', b)
+        data = self.s.read_json('areaList')
+        return data
 
     def check_pl(self, taskId, taskType, fileName, plId=None):
         """
@@ -120,69 +86,48 @@ class GetCommon:
             pathKey = r.json()['data']['path']
             return pathKey
         else:
-            print("文件上传失败：{}".format(r.json()))
+            print("文件校验失败：{}".format(r.json()))
 
-    def get_plId(self, taskType, taskId):
+    def get_detailInfo(self, taskId, taskType):
         """
-        根据任务类型，任务ID获取Pl信息
+        根据任务类型获取明细信息并写如入JSON
         """
-        if taskType == '5':
-            url = self.ip + '/api/cgi/listPl'
+        if taskType == '1':
+            plInfo = self.s.read_foot('pl')
+            plId = plInfo[0]['plId']
+            url = self.ip + '/api/mms/getPackListDetail'
             headers = self.headers
             data = {
-                'taskId': taskId
+                'taskId': taskId,
+                'plId': plId,
             }
-            r = requests.get(url, headers=headers, params=data)
-            if r.json()['msg'] == '成功':
-                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-                plId = r.json()['data'][0]['plId']
-                # 将Int型转换为str型
-                return str(plId)
-            else:
-                print('获取plId失败：{}'.format(r.json()))
-        elif taskType == '1':
+            r = requests.get(url, params=data, headers=headers)
+            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+            self.s.write_foot('detail', r.json()['data'])
+            print('写入成功:{}'.format(self.g.get_foot_path('detail')))
+            return self.s.read_foot('detail')
+
+    def get_plInfo(self, taskId, taskType):
+        """
+        根据任务类型获取PL信息写入JSON并返回出来
+        """
+        if taskType == '1':
             url = self.ip + '/api/mms/listPl'
-            headers = self.headers
             data = {
                 'taskId': taskId
             }
-            r = requests.get(url, headers=headers, params=data)
-            if r.json()['msg'] == '成功':
-                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-                plId = r.json()['data'][0]['plId']
-                # 将Int型转换为str型
-                return str(plId)
-            else:
-                print('获取plId失败：{}'.format(r.json()))
-        elif taskType == '2':
-            url = self.ip + '/task/lps/listPl'
             headers = self.headers
+            r = requests.get(url, params=data, headers=headers)
+            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+            self.s.write_foot('pl', r.json()['data'])
+            return self.s.read_foot('pl')
+        elif taskType == '5':
+            url = self.ip + '/api/cgi/listPl'
             data = {
-                'taskId': taskId,
-                'taskType': taskType
+                'taskId': taskId
             }
-            r = requests.get(url, headers=headers, params=data)
-            if r.json()['msg'] == '成功':
-                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-                plId = r.json()['data'][0]['plId']
-                # 将Int型转换为str型
-                return str(plId)
-            else:
-                print('获取plId失败：{}'.format(r.json()))
-        elif taskType == '3':
-            url = self.ip + '/api/vds/listPl'
             headers = self.headers
-            data = {
-                'taskId': taskId,
-                'taskType': taskType
-            }
-            r = requests.get(url, headers=headers, params=data)
-            if r.json()['msg'] == '成功':
-                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-                plId = r.json()['data'][0]['plId']
-                # 将Int型转换为str型
-                return str(plId)
-            else:
-                print('获取plId失败：{}'.format(r.json()))
-
-
+            r = requests.get(url, params=data, headers=headers)
+            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+            self.s.write_foot('pl', r.json()['data'])
+            return self.s.read_foot('pl')

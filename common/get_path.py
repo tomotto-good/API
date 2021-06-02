@@ -31,3 +31,18 @@ class GetPath:
     def get_foot_path(self, fileName):
         footPath = os.path.join(self.dataPath, 'foot')
         return os.path.join(footPath, fileName + '.json')
+
+    # 获取集港文件路径
+    def get_collection_path(self, fileName):
+        collectionPath = os.path.join(self.dataPath, 'collection')
+        return os.path.join(collectionPath, fileName + '.json')
+
+    # 获取监装文件路径
+    def get_loading_path(self, fileName):
+        collectionPath = os.path.join(self.dataPath, 'loading')
+        return os.path.join(collectionPath, fileName + '.json')
+
+    # 获取监卸文件路径
+    def get_unloading_path(self, fileName):
+        collectionPath = os.path.join(self.dataPath, 'unloading')
+        return os.path.join(collectionPath, fileName + '.json')

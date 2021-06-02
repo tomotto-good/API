@@ -1,7 +1,5 @@
 import json
-
 from common.get_path import GetPath
-import pickle
 
 
 class SaveJson:
@@ -28,4 +26,43 @@ class SaveJson:
     def read_foot(self, fileName):
         footPath = GetPath().get_foot_path(fileName=fileName)
         with open(footPath, 'r', encoding='utf-8')as f:
+            return json.load(f)
+
+    # 写入集港任务文件
+    def write_collection(self, fileName, data):
+        collectionPath = GetPath().get_collection_path(fileName=fileName)
+        with open(collectionPath, 'w', encoding='utf-8')as f:
+            json.dump(data, f, ensure_ascii=False)
+            print('写入成功:{}'.format(collectionPath))
+
+    # 读取集港任务文件
+    def read_collection(self, fileName):
+        collectionPath = GetPath().get_collection_path(fileName=fileName)
+        with open(collectionPath, 'r', encoding='utf-8')as f:
+            return json.load(f)
+
+    # 写入监装任务文件
+    def weite_loading(self, fileName, data):
+        loadingPath = GetPath().get_loading_path(fileName=fileName)
+        with open(loadingPath, 'w', encoding='utf-8')as f:
+            json.dump(data, f, ensure_ascii=False)
+            print('写入成功:{}'.format(loadingPath))
+
+    # 读取监装任务文件
+    def read_loading(self, fileName):
+        loadingPath = GetPath().get_loading_path(fileName=fileName)
+        with open(loadingPath, 'r', encoding='utf-8')as f:
+            return json.load(f)
+
+    # 写入监卸任务文件
+    def weite_unloading(self, fileName, data):
+        unloadingPath = GetPath().get_unloading_path(fileName=fileName)
+        with open(unloadingPath, 'w', encoding='utf-8')as f:
+            json.dump(data, f, ensure_ascii=False)
+            print('写入成功:{}'.format(unloadingPath))
+
+    # 读取监卸任务文件
+    def read_unloading(self, fileName):
+        unloadingPath = GetPath().get_unloading_path(fileName=fileName)
+        with open(unloadingPath, 'r', encoding='utf-8')as f:
             return json.load(f)

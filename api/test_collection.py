@@ -6,6 +6,7 @@ import requests
 import json
 from common.get_common import GetCommon
 from common.read_ini import ReadIni
+from common.save_json import SaveJson
 from tools.MyEncoder import MyEncoder
 
 from parameterized import parameterized
@@ -18,6 +19,7 @@ class TestCollection(unittest.TestCase):
         r = ReadIni()
         cls.g = GetCommon()
         cls.m = MyEncoder()
+        cls.s = SaveJson()
         # 获取环境
         cls.ip = r.get_ip()
         # 设置任务类型
@@ -26,8 +28,6 @@ class TestCollection(unittest.TestCase):
         cls.os = r.get_os()
         # 获取token
         cls.token = r.get_token()
-        # 获取添加的任务ID
-        cls.taskId = cls.g.get_taskId(cls.taskType)
         # 设置请求头
         cls.headers = {
             'os': cls.os,
@@ -41,43 +41,69 @@ class TestCollection(unittest.TestCase):
         """
         pass
 
-    def test_01_import_pl(self, fileName='标准模板'):
+    @staticmethod
+    def outPut(url, data, r):
+        return "'\033[1;31;40m请求\033[0m'：{} \n'\033[1;31;40m数据\033[0m':{} \n'\033[1;31;40m返回\033[0m'：{} ".format(url,
+                                                                                                                 data,
+                                                                                                                 r.json())
+
+    @parameterized.expand([('杨敏馨测试1', 'Sos', 'Shanghai Port', '军工路码头', '任务描述', '顾鹏')])
+    def test_01_add_task(self, vesselName, voyage, portName, terminalName, description, customer):
+        """
+        添加任务并将任务信息写入文件
+        """
+        global taskName
+        nowTime = datetime.datetime.now()
+        # 获取当前时间戳
+        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
+        threeDayAgo = (datetime.datetime.now() + datetime.timedelta(days=7))
+        # 获取7天后的时间戳
+        timeStamp = int(time.mktime(threeDayAgo.timetuple()))
+        a = '000'
+        url = self.ip + '/task/index/addTask'
+        headers = self.headers
+        if self.os == '1':
+            taskName = '安卓/集港'
+        elif self.os == '2':
+            taskName = 'IOS/集港'
+        data = {"taskName": taskName, "taskType": self.taskType, "vesselName": vesselName,
+                "vesselId": self.g.get_vessel_Id(vesselName), "voyage": voyage, "portName": portName,
+                "terminalName": terminalName, "customer": customer, "expectStartTime": str(nowTimeStamp) + a,
+                "expectEndTime": str(timeStamp) + a, "expectBerthTime": str(nowTimeStamp) + a,
+                "expectDepartureTime": str(timeStamp) + a, "description": description}
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        # response
+        self.outPut(url, data, r)
+        msg = r.json()['msg']
+        self.assertEqual(msg, '成功')
+        # 将请求返回数据写入JSON文件
+        self.s.write_collection('addTask', r.json()['data'])
+
+    @parameterized.expand([('清单1', '标准模板'), ('清单2', '数据存在符号')])
+    def test_02_import_pl(self, shippingOrder, fileName):
         """
         验证集港任务--模板导入
         """
-
-        pathKey = self.g.check_pl(self.taskId, self.taskType, fileName=fileName)
+        global taskId
+        taskInfo = self.s.read_collection('addTask')
+        taskId = taskInfo['taskId']
+        pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName)
         if pathKey:
             url = self.ip + '/task/cgi/createPl'
-            data = {"taskId": self.taskId, "shippingOrder": "清单1", "lengthUnit": 2, "weightUnit": 1,
+            data = {"taskId": taskId, "shippingOrder": shippingOrder, "lengthUnit": 2, "weightUnit": 1,
                     "pathKey": pathKey}
             headers = self.headers
             r = requests.post(url, data=json.dumps(data), headers=headers)
-            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+            # response
+            self.outPut(url, data, r)
             msg = r.json()['msg']
             self.assertEqual(msg, '成功')
+            return taskId
         else:
-            print('模板校验失败')
-
-    # @unittest.skip('跳过')
-    def test_02_get_pl_info(self):
-        """
-        根据任务ID获取PL信息
-        """
-        url = self.ip + '/api/cgi/listPl'
-        headers = self.headers
-        data = {
-            'taskId': self.taskId
-        }
-        r = requests.get(url, headers=headers, params=data)
-        if r.json()['msg'] == '成功':
-            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-            response = r.json()['data'][0]
-            plId = response['plId']
-        else:
-            print('获取plId失败：{}'.format(r.json()))
+            print("清单校验失败")
 
     @parameterized.expand(['15618994023', '17621209360'])
+    @unittest.skip('跳过')
     def test_02_select_user(self, telephone):
         """
         根据手机号获取人员信息并添加执行人全部PL权限
@@ -85,7 +111,7 @@ class TestCollection(unittest.TestCase):
         url = self.ip + '/api/sysUserTask/getUserByPhoneAndCurrentUserAuthority'
         headers = self.headers
         data = {
-            'taskId': self.taskId,
+            'taskId': taskId,
             'taskType': self.taskType,
             'phone': telephone,
             'areaCode': '86'
@@ -123,6 +149,7 @@ class TestCollection(unittest.TestCase):
         elif telephone == '17621209360':
             print('添加龙哥成功')
 
+    @unittest.skip('跳过')
     def test_03_update_pl(self, fileName='数据存在符号'):
         """
         集港任务-模板变更
@@ -131,9 +158,9 @@ class TestCollection(unittest.TestCase):
         # 获取当前时间戳
         nowTimeStamp = int(time.mktime(nowTime.timetuple()))
         # 获取plId
-        plId = self.g.get_plId(self.taskType, self.taskId)
+        plId = self.g.get_plInfo(self.taskType, taskId)
         # 模板校验-获取pathKey
-        pathKey = self.g.check_pl(self.taskId, self.taskType, fileName=fileName, plId=plId)
+        pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName, plId=plId)
         if pathKey:
             url = self.ip + '/task/cgi/updatePl'
             headers = self.headers
@@ -159,3 +186,8 @@ class TestCollection(unittest.TestCase):
             r = requests.post(url, data=json.dumps(data), headers=headers)
             print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
             self.assertEqual(r.json()['msg'], '成功')
+
+    def test_04_collection(self):
+        """
+        开始任务
+        """

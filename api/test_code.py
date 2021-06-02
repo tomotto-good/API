@@ -8,6 +8,7 @@ from common.save_json import SaveJson
 
 
 class TestCode(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls) -> None:
         warnings.simplefilter('ignore', ResourceWarning)
@@ -48,11 +49,18 @@ class TestCode(unittest.TestCase):
         """
         短信登陆获取token
         """
+        global headers
         url = self.ip + '/api/v2/vCodeLogin'
         data = {"mobile": "18217484395", "verificationCode": code, "areaCode": "86", "shareCode": ""}
-        headers = {
-            'os': self.os
-        }
+        if self.os == '2':
+            headers = {
+                'os': self.os,
+                'versionName': '1.6.11'
+            }
+        elif self.os == '1':
+            headers = {
+                'os': self.os
+            }
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
         if r.json()['msg'] == '成功':

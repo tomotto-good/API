@@ -12,7 +12,8 @@ class Test_vessel(unittest.TestCase):
         cls.token = r.get_token()
         cls.headers = {
             'os': cls.os,
-            'authorization': cls.token
+            'authorization': cls.token,
+            'version': '1.7.4.3'
         }
 
     def test_01_vessel(self, vesselId='63'):
@@ -25,5 +26,5 @@ class Test_vessel(unittest.TestCase):
         }
         headers = self.headers
         r = requests.get(url, headers=headers, params=data)
-        self.assertEqual(r.json()['msg'], '成功')
         print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+        self.assertEqual(r.json()['msg'], '成功')
