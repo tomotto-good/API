@@ -42,7 +42,7 @@ class SaveJson:
             return json.load(f)
 
     # 写入监装任务文件
-    def weite_loading(self, fileName, data):
+    def write_loading(self, fileName, data):
         loadingPath = GetPath().get_loading_path(fileName=fileName)
         with open(loadingPath, 'w', encoding='utf-8')as f:
             json.dump(data, f, ensure_ascii=False)
@@ -55,7 +55,7 @@ class SaveJson:
             return json.load(f)
 
     # 写入监卸任务文件
-    def weite_unloading(self, fileName, data):
+    def write_unloading(self, fileName, data):
         unloadingPath = GetPath().get_unloading_path(fileName=fileName)
         with open(unloadingPath, 'w', encoding='utf-8')as f:
             json.dump(data, f, ensure_ascii=False)

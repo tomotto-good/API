@@ -1,6 +1,3 @@
-import json
-import time
-import datetime
 import warnings
 import requests
 from common.read_ini import ReadIni
@@ -41,6 +38,40 @@ class GetCommon:
             if i['vesselName'] == vesselName:
                 return i['vesselId']
 
+    def get_hatches(self, vesselId):
+        """
+        根据船舶ID获取舱口信息并写入JSON文件
+        """
+        url = self.ip + '/api/basic/getHatches'
+        headers = self.headers
+        data = {
+            'vesselId': vesselId
+        }
+        r = requests.get(url, headers=headers, params=data)
+        print("获取舱口信息请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+        if r.json()['msg'] == '成功':
+            self.s.write_loading('hatches', r.json()['data'])
+            return self.s.read_loading('hatches')
+        else:
+            return False
+
+    def get_spaces(self, vesselId):
+        """
+        根据船舶ID获取舱位信息并写入JSON文件
+        """
+        url = self.ip + '/api/basic/getSpaces'
+        headers = self.headers
+        data = {
+            'vesselId': vesselId
+        }
+        r = requests.get(url, headers=headers, params=data)
+        print("获取舱口信息请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+        if r.json()['msg'] == '成功':
+            self.s.write_loading('spaces', r.json()['data'])
+            return self.s.read_loading('spaces')
+        else:
+            return False
+
     def get_areaList(self):
         """
         获取系统内场地Id/名称，返回列表
@@ -63,6 +94,17 @@ class GetCommon:
         self.s.write_json('areaList', b)
         data = self.s.read_json('areaList')
         return data
+
+    def get_oss_token(self):
+        """
+        获取ossToken并写入JSON文件
+        """
+        url = self.ip + '/api/file/getOSSToken'
+        headers = self.headers
+        r = requests.post(url, headers=headers)
+        print("请求：{}\n返回：{} ".format(url, r.json()))
+        # 将osstoken写入json中
+        self.s.write_json('ossToken', r.json()['data'])
 
     def check_pl(self, taskId, taskType, fileName, plId=None):
         """
@@ -103,9 +145,30 @@ class GetCommon:
             }
             r = requests.get(url, params=data, headers=headers)
             print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-            self.s.write_foot('detail', r.json()['data'])
-            print('写入成功:{}'.format(self.g.get_foot_path('detail')))
-            return self.s.read_foot('detail')
+            if r.json()['msg'] == '成功':
+                self.s.write_foot('detail', r.json()['data'])
+                return self.s.read_foot('detail')
+            else:
+                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+                return False
+        elif taskType == '2':
+            # 获取监装PL信息
+            plInfo = self.s.read_loading('pl')
+            plId = plInfo[0]['plId']
+            url = self.ip + '/task/lps/getPackListDetail'
+            headers = self.headers
+            data = {
+                'taskId': taskId,
+                'plId': plId,
+            }
+            r = requests.get(url, params=data, headers=headers)
+            if r.json()['msg'] == '成功':
+                self.s.write_loading('detail', r.json()['data'])
+                # 返回监装明细信息
+                return self.s.read_loading('detail')
+            else:
+                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+                return False
 
     def get_plInfo(self, taskId, taskType):
         """
@@ -118,9 +181,13 @@ class GetCommon:
             }
             headers = self.headers
             r = requests.get(url, params=data, headers=headers)
-            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-            self.s.write_foot('pl', r.json()['data'])
-            return self.s.read_foot('pl')
+            if r.json()['msg'] == '成功':
+
+                self.s.write_foot('pl', r.json()['data'])
+                return self.s.read_foot('pl')
+            else:
+                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+                return False
         elif taskType == '5':
             url = self.ip + '/api/cgi/listPl'
             data = {
@@ -128,6 +195,23 @@ class GetCommon:
             }
             headers = self.headers
             r = requests.get(url, params=data, headers=headers)
-            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-            self.s.write_foot('pl', r.json()['data'])
-            return self.s.read_foot('pl')
+
+            if r.json()['msg'] == '成功':
+                self.s.write_collection('pl', r.json()['data'])
+                return self.s.read_collection('pl')
+            else:
+                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+                return False
+        elif taskType == '2':
+            url = self.ip + '/task/lps/listPl'
+            data = {
+                'taskId': taskId
+            }
+            headers = self.headers
+            r = requests.get(url, params=data, headers=headers)
+            if r.json()['msg'] == '成功':
+                self.s.write_loading('pl', r.json()['data'])
+                return self.s.read_loading('pl')
+            else:
+                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+                return False

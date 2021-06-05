@@ -41,9 +41,7 @@ class TestLoading(unittest.TestCase):
 
     @staticmethod
     def outPut(url, data, r):
-        return "'\033[1;31;40m请求\033[0m'：{} \n'\033[1;31;40m数据\033[0m':{} \n'\033[1;31;40m返回\033[0m'：{} ".format(url,
-                                                                                                                 data,
-                                                                                                                 r.json())
+        return "请求：{} \n数据：{}\n返回：{} ".format(url, data, r.json())
 
     @parameterized.expand([('杨敏馨测试1', 'Sos', 'Shanghai Port', '军工路码头', '任务描述', '顾鹏')])
     def test_01_add_task(self, vesselName, voyage, portName, terminalName, description, customer):
@@ -75,9 +73,9 @@ class TestLoading(unittest.TestCase):
         msg = r.json()['msg']
         self.assertEqual(msg, '成功')
         # 将请求返回数据写入JSON文件
-        self.s.weite_loading('addTask', r.json()['data'])
+        self.s.write_loading('addTask', r.json()['data'])
 
-    def test_01_import_pl(self, fileName='标准模板'):
+    def test_02_import_pl(self, fileName='标准模板'):
         """
         验证监装任务--模板导入
         """
@@ -96,87 +94,260 @@ class TestLoading(unittest.TestCase):
             msg = r.json()['msg']
             self.assertEqual(msg, '成功')
 
-    @parameterized.expand(['15618994023', '17621209360'])
-    @unittest.skip('跳过')
-    def test_02_select_user(self, telephone='15618994023'):
+    def test_03_start_task(self):
         """
-        添加执行人全部PL权限
+        开始任务
         """
-        url = self.ip + '/api/sysUserTask/getUserByPhoneAndCurrentUserAuthority'
+        url = self.ip + '/task/index/startTask'
         headers = self.headers
         data = {
             'taskId': taskId,
-            'taskType': self.taskType,
-            'phone': telephone,
-            'areaCode': '86'
+            'taskType': self.taskType
         }
         r = requests.get(url, headers=headers, params=data)
-        print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-        results = r.json()['data']
+        print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
-        areaCode = results['areaCode']
-        headImg = results['headImg']
-        name = results['name']
-        phone = results['mobile']
-        plAuthority = results['plAuthority']
-        plAuthorityEdit = results['plAuthorityEdit']
-        plScope = results['plScope']
-        plScopeEdit = results['plScopeEdit']
-        status = results['status']
-        plIds = results['plIds']
-        userId = results['userId']
-        url = self.ip + '/api/sysUserTask/addUserTaskRel'
-        headers = self.headers
-        data = {"areaCode": areaCode, "companyName": "", "delAuthority": 'null', "email": "",
-                "headImg": headImg,
-                "id": 'null', "jobName": "", "jobTitle": "", "name": name, "phone": phone, "plAuthority": plAuthority,
-                "plAuthorityEdit": plAuthorityEdit, "plIds": plIds, "plScope": plScope, "plScopeEdit": plScopeEdit,
-                "status": status,
-                "taskAuthority": '3', "taskAuthorityEdit": 'true', "taskId": taskId,
-                "taskType": self.taskType, "typeDesc": 'null',
-                "updateAuthority": 'null', "userId": userId}
-        r = requests.post(url, data=json.dumps(data), headers=headers)
-        print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-        self.assertEqual(r.json()['msg'], '成功')
-        if telephone == '15618994023':
-            print('添加兵哥成功')
-        elif telephone == '17621209360':
-            print('添加龙哥成功')
 
-    @unittest.skip('跳过')
-    def test_03_update_pl(self, fileName='数据存在符号'):
+    def test_04_add_group(self):
         """
-        监装任务-模板变更
+        创建工班
         """
         nowTime = datetime.datetime.now()
         # 获取当前时间戳
         nowTimeStamp = int(time.mktime(nowTime.timetuple()))
-        # 获取plId
-        plId = self.g.get_plInfo(self.taskType, taskId)
-        # 模板校验-获取pathKey
-        pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName, plId=plId)
-        if pathKey:
-            url = self.ip + '/task/lps/updatePl'
-            headers = self.headers
-            data = {"acceptanceNumber": "", "bargePositionNo": 'null', "consignee": "", "contractNumber": "",
-                    "createTimeStamp": str(nowTimeStamp) + '000', "creatorName": "顾鹏", "deliveryAddress": "",
-                    "description": "",
-                    "dischargingPort": "", "expectArriveTime": 'null', "expectArriveTimeStamp": 'null',
-                    "finishTotalQty": '0',
-                    "finishTotalVolume": '0', "finishTotalWeight": '0', "groupId": "", "importTotalQty": '9',
-                    "importTotalVolume": '517.42', "importTotalWeight": '6.97', "increase": '-88',
-                    "increment": '-458.4',
-                    "loadingPort": "", "owner": "", "phone": "", "picGroupId": 'null', "plAuthority": '1', "plId": plId,
-                    "plNumber": "PL8000000639269885", "portId": 'null', "portName": "Shanghai Port",
-                    "realCgiEndTime": 'null',
-                    "realCgiEndTimeStamp": 'null', "realCgiStartTime": 'null', "realCgiStartTimeStamp": 'null',
-                    "shipper": "",
-                    "shippingOrder": "清单1", "status": '0', "taskId": taskId, "taskType": self.taskType,
-                    "terminalId": 'null',
-                    "terminalName": "军工路码头", "unread": '0', "updateTimeStamp": str(nowTimeStamp) + '0',
-                    "updaterName": "顾鹏",
-                    "vesselId": '63', "vesselName": "杨敏馨测试1", "voyage": "SOS", "lengthUnit": '2', "weightUnit": '1',
-                    "pathKey": pathKey}
-            r = requests.post(url, data=json.dumps(data), headers=headers)
-            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-            self.assertEqual(r.json()['msg'], '成功')
+        threeDayAgo = (datetime.datetime.now() + datetime.timedelta(days=7))
+        # 获取7天后的时间戳
+        timeStamp = int(time.mktime(threeDayAgo.timetuple()))
+        url = self.ip + '/task/lps/addGroup'
+        headers = self.headers
+        data = {
+            "description": "白日依山尽，黄河入海流，欲穷千里目，更上一层楼",
+            "groupEndTime": str(timeStamp) + '000',
+            "groupName": "工班 1-1-1",
+            "groupStartTime": str(nowTimeStamp) + '000',
+            "taskId": taskId
+        }
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+        # 将创建的工班信息写入JSON文件
+        self.s.write_loading('group', r.json()['data'])
+
+    def test_05_set_before_loading(self):
+        """
+        装前货况上传其他类型照片
+        """
+        url = self.ip + '/task/lps/setBeforeLoading'
+        headers = self.headers
+        data = [
+            {
+                "abnormal": 17,
+                "dataType": '1',  # 1.场地整体数据 2.BL整体数据 3.单件数据
+                "mediaType": '1',  # 媒体类型1：照片3：视频
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "tag": "其他照片标签",  # 照片标签
+                "taskId": taskId,
+            }
+        ]
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+
+    def test_06_set_before_loading(self):
+        """
+        装前货况上传BL整体照片
+        """
+        global plId
+        # 获取PL信息
+        plInfo = self.g.get_plInfo(taskId, self.taskType)
+        plId = plInfo[0]['plId']
+        url = self.ip + '/task/lps/setBeforeLoading'
+        headers = self.headers
+        data = [
+            {
+                "abnormal": '17',
+                "dataType": '2',  # 1.场地整体数据 2.BL整体数据 3.单件数据
+                "imageRemark": "照片备注",
+                "mediaType": '1',
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "plId": plId,  # plID
+                "tag": "BL整体照片标签",  # 照片标签
+                "taskId": taskId,
+            }
+        ]
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+
+    def test_07_set_before_loading(self, number=0):
+        """
+        装前货况上传明细照片
+        """
+        global plDetailId
+        # 获取明细信息
+        detailInfo = self.g.get_detailInfo(taskId, self.taskType)
+        plDetailId = detailInfo[number]['plDetailId']
+        url = self.ip + '/task/lps/setBeforeLoading'
+        headers = self.headers
+        data = [
+            {
+                "abnormal": '17',
+                "dataType": '3',  # 1.场地整体数据 2.BL整体数据 3.单件数据
+                "imageRemark": "照片备注",
+                "mediaType": '1',
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "plDetailId": plDetailId,
+                "plId": plId,
+                "tag": "明细照片标签",
+                "taskId": taskId,
+            }
+        ]
+
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+
+    def test_08_set_shipSurvey(self):
+        """
+        船舶概况上传船舶整体照片
+        """
+        global vesselId
+        # 获取监装船舶ID
+        vesselId = self.s.read_loading('addTask')['vesselId']
+        url = self.ip + '/task/lps/setShipSurvey'
+        headers = self.headers
+        data = [
+            {
+                "abnormal": '17',
+                "dataType": '1',  # 数据类型1.船舶整体数据3.舱位数据
+                'dataId': vesselId,  # 监装船舶数据Id
+                "imageRemark": "船舶整体照片备注",
+                "mediaType": '1',  # 媒体类型1：照片3：视频
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",  # 照片路径
+                "tag": "船舶整体照片标签",
+                "taskId": taskId,
+            }
+        ]
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+
+    def test_09_set_shipSurvey(self):
+        """
+        船舶概况上传舱口舱位照片
+        """
+        global hatchId, hatchName, spaceId, spaceName
+        url = self.ip + '/task/lps/setShipSurvey'
+        headers = self.headers
+        # 获取NO.I舱口ID/Name
+        hatches = self.g.get_hatches(vesselId)
+        hatchId = hatches[0]['hatchId']
+        hatchName = hatches[0]['hatchName']
+        # 获取舱位信息
+        spaces = self.g.get_spaces(vesselId)
+        spaceId = spaces[0]['spaceId']
+        spaceName = spaces[0]['spaceName']
+        data = [
+            {
+                "abnormal": '17',
+                "dataId": vesselId,  # 监装船舶数据Id
+                "dataType": '3',  # 数据类型1.船舶整体数据3.舱位数据
+                "hatchId": hatchId,  # 舱口ID
+                "hatchName": hatchName,
+                "imageRemark": "舱位照片备注",
+                "mediaType": '1',  # 媒体类型1：照片3：视频
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "spaceId": spaceId,  # 舱位id
+                "spaceName": spaceName,
+                "tag": "舱位照片标签",
+                "taskId": taskId,
+            }
+        ]
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+
+    def test_10_set_eventNode(self):
+        """
+        装载过程上传舱位整体照片
+        """
+        nowTime = datetime.datetime.now()
+        # 获取当前时间戳
+        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
+        url = self.ip + '/task/lps/setEventNode'
+        headers = self.headers
+        data = [
+            {
+                "abnormal": '17',  # 异常
+                "dataId": vesselId,  # 监装过程数据Id
+                "dataType": '1',  # 数据类型 1.舱位整体照片 2.BL整体照片 3.单件照片
+                "hatchId": hatchId,  # 舱口ID
+                "hatchName": hatchName,
+                "imageRemark": "舱位整体照片备注",  # 照片备注
+                "mediaType": '1',  # 媒体类型1：照片3：视频
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "spaceId": spaceId,  # 舱位id
+                "spaceName": spaceName,
+                "tag": "舱位整体照片标签",
+                "taskId": taskId,
+                "timeStamp": str(nowTimeStamp) + '000'
+            }
+        ]
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+
+    def test_11_set_eventNode(self):
+        """
+        装载过程上传BL整体照片
+        """
+        url = self.ip + '/task/lps/setEventNode'
+        headers = self.headers
+        nowTime = datetime.datetime.now()
+        # 获取当前时间戳
+        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
+        data = [
+            {
+                "abnormal": '17',  # 异常
+                "dataType": '2',  # 数据类型 1.舱位整体照片 2.BL整体照片 3.单件照片
+                "imageRemark": "BL整体照片备注",  # 照片备注
+                "lashingFlag": '1',  # 是否为绑扎照片0:否 1:是
+                "mediaType": '1',  # 媒体类型1：照片3：视频
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "plId": plId,
+                "tag": "BL整体照片标签",
+                "taskId": taskId,
+                "timeStamp": str(nowTimeStamp) + '000'
+            }
+        ]
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')
+
+    def test_12_set_eventNode(self):
+        """
+        装载过程上传明细照片
+        """
+        url = self.ip + '/task/lps/setEventNode'
+        headers = self.headers
+        nowTime = datetime.datetime.now()
+        # 获取当前时间戳
+        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
+        data = [
+            {
+                "abnormal": '17',  # 异常
+                "dataType": '3',  # 数据类型 1.舱位整体照片 2.BL整体照片 3.单件照片
+                "imageRemark": "明细照片备注",  # 照片备注
+                "lashingFlag": '1',  # 是否为绑扎照片0:否 1:是
+                "mediaType": '1',  # 媒体类型1：照片3：视频
+                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "plDetailId": plDetailId,
+                "plId": plId,
+                "tag": "明细照片标签",
+                "taskId": taskId,
+                "timeStamp": str(nowTimeStamp) + '000'
+            }
+        ]
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print(self.outPut(url, data, r))
+        self.assertEqual(r.json()['msg'], '成功')

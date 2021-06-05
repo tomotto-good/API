@@ -21,6 +21,7 @@ class TestCode(unittest.TestCase):
         # 获取手机号
         cls.user = r.get_user()
 
+    @unittest.skip('跳过')
     def test_01_get_code(self):
         """
         发送短信获取code
@@ -45,6 +46,7 @@ class TestCode(unittest.TestCase):
         code = eval(results[0])['code']
         print("code:", code)
 
+    @unittest.skip('跳过')
     def test_02_get_token(self):
         """
         短信登陆获取token
@@ -68,6 +70,25 @@ class TestCode(unittest.TestCase):
         token = r.json()['data']['token']
         # 将token写入配置文件
         ReadIni().write_ini(token)
-        print('token写入配置文件成功')
+        # 将用户信息写进json文件
+        self.s.write_json('user', r.json()['data'])
+
+    def test_03_pwdLogin(self):
+        url = self.ip + '/api/v2/pwdLogin'
+        headers = {
+            "os": self.os,
+            'versionName': '1.6.11'
+        }
+        data = {
+            'username': '18217484395',
+            'password': '123456'
+        }
+        r = requests.post(url, headers=headers, data=json.dumps(data))
+        print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+        if r.json()['msg'] == '成功':
+            print("密码登陆成功")
+        token = r.json()['data']['token']
+        # 将token写入配置文件
+        ReadIni().write_ini(token)
         # 将用户信息写进json文件
         self.s.write_json('user', r.json()['data'])

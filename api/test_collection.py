@@ -43,9 +43,7 @@ class TestCollection(unittest.TestCase):
 
     @staticmethod
     def outPut(url, data, r):
-        return "'\033[1;31;40m请求\033[0m'：{} \n'\033[1;31;40m数据\033[0m':{} \n'\033[1;31;40m返回\033[0m'：{} ".format(url,
-                                                                                                                 data,
-                                                                                                                 r.json())
+        return "请求：{} \n数据：{}\n返回：{} ".format(url, data, r.json())
 
     @parameterized.expand([('杨敏馨测试1', 'Sos', 'Shanghai Port', '军工路码头', '任务描述', '顾鹏')])
     def test_01_add_task(self, vesselName, voyage, portName, terminalName, description, customer):
@@ -102,92 +100,8 @@ class TestCollection(unittest.TestCase):
         else:
             print("清单校验失败")
 
-    @parameterized.expand(['15618994023', '17621209360'])
-    @unittest.skip('跳过')
-    def test_02_select_user(self, telephone):
-        """
-        根据手机号获取人员信息并添加执行人全部PL权限
-        """
-        url = self.ip + '/api/sysUserTask/getUserByPhoneAndCurrentUserAuthority'
-        headers = self.headers
-        data = {
-            'taskId': taskId,
-            'taskType': self.taskType,
-            'phone': telephone,
-            'areaCode': '86'
-        }
-        r = requests.get(url, headers=headers, params=data)
-        print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-        results = r.json()['data']
-        self.assertEqual(r.json()['msg'], '成功')
-        areaCode = results['areaCode']
-        headImg = results['headImg']
-        name = results['name']
-        phone = results['mobile']
-        plAuthority = results['plAuthority']
-        plAuthorityEdit = results['plAuthorityEdit']
-        plScope = results['plScope']
-        plScopeEdit = results['plScopeEdit']
-        status = results['status']
-        plIds = results['plIds']
-        userId = results['userId']
-        url = self.ip + '/api/sysUserTask/addUserTaskRel'
-        headers = self.headers
-        data = {"areaCode": areaCode, "companyName": "", "delAuthority": 'null', "email": "",
-                "headImg": headImg,
-                "id": 'null', "jobName": "", "jobTitle": "", "name": name, "phone": phone, "plAuthority": plAuthority,
-                "plAuthorityEdit": plAuthorityEdit, "plIds": plIds, "plScope": plScope, "plScopeEdit": plScopeEdit,
-                "status": status,
-                "taskAuthority": '3', "taskAuthorityEdit": 'true', "taskId": self.taskId,
-                "taskType": self.taskType, "typeDesc": 'null',
-                "updateAuthority": 'null', "userId": userId}
-        r = requests.post(url, data=json.dumps(data, cls=MyEncoder, indent=4), headers=headers)
-        print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-        self.assertEqual(r.json()['msg'], '成功')
-        if telephone == '15618994023':
-            print('添加兵哥成功')
-        elif telephone == '17621209360':
-            print('添加龙哥成功')
-
-    @unittest.skip('跳过')
-    def test_03_update_pl(self, fileName='数据存在符号'):
-        """
-        集港任务-模板变更
-        """
-        nowTime = datetime.datetime.now()
-        # 获取当前时间戳
-        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
-        # 获取plId
-        plId = self.g.get_plInfo(self.taskType, taskId)
-        # 模板校验-获取pathKey
-        pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName, plId=plId)
-        if pathKey:
-            url = self.ip + '/task/cgi/updatePl'
-            headers = self.headers
-            data = {"acceptanceNumber": "", "bargePositionNo": 'null', "consignee": "", "contractNumber": "",
-                    "createTimeStamp": str(nowTimeStamp) + '000', "creatorName": "顾鹏", "deliveryAddress": "",
-                    "description": "",
-                    "dischargingPort": "", "expectArriveTime": 'null', "expectArriveTimeStamp": 'null',
-                    "finishTotalQty": '0',
-                    "finishTotalVolume": '0', "finishTotalWeight": '0', "groupId": "", "importTotalQty": '9',
-                    "importTotalVolume": '517.42', "importTotalWeight": '6.97', "increase": '-88',
-                    "increment": '-458.4',
-                    "loadingPort": "", "owner": "", "phone": "", "picGroupId": 'null', "plAuthority": '1', "plId": plId,
-                    "plNumber": "PL8000000639269885", "portId": 'null', "portName": "Shanghai Port",
-                    "realCgiEndTime": 'null',
-                    "realCgiEndTimeStamp": 'null', "realCgiStartTime": 'null', "realCgiStartTimeStamp": 'null',
-                    "shipper": "",
-                    "shippingOrder": "清单1", "status": '0', "taskId": self.taskId, "taskType": self.taskType,
-                    "terminalId": 'null',
-                    "terminalName": "军工路码头", "unread": '0', "updateTimeStamp": str(nowTimeStamp) + '0',
-                    "updaterName": "顾鹏",
-                    "vesselId": '63', "vesselName": "杨敏馨测试1", "voyage": "SOS", "lengthUnit": '2', "weightUnit": '1',
-                    "pathKey": pathKey}
-            r = requests.post(url, data=json.dumps(data), headers=headers)
-            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-            self.assertEqual(r.json()['msg'], '成功')
-
     def test_04_collection(self):
         """
         开始任务
         """
+        pass
