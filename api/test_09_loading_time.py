@@ -27,9 +27,9 @@ class TestLoadingTime(unittest.TestCase):
         # 设置请求头
         cls.headers = {
             'os': cls.os,
-            'Authorization': cls.token
+            'Authorization': cls.token,
+            'versionName': '1.6.11'
         }
-
     @classmethod
     def tearDown(cls) -> None:
         pass
@@ -57,7 +57,7 @@ class TestLoadingTime(unittest.TestCase):
         self.s.write_loading('timeLog', r.json()['data'])
 
     def test_02_update_time_log(self):
-        """"
+        """
         监装时间流修改
         """
         url = self.ip + '/task/lps/updateTimeLog'
@@ -97,25 +97,36 @@ class TestLoadingTime(unittest.TestCase):
                 print(self.outPut(url, data, r))
                 self.assertEqual(r.json()['msg'], '成功')
             # 实际离港时间
-            if t['dataType'] == 8:
+            elif t['dataType'] == 8:
                 dataId = t['dataId']
                 data = [{"timeStamp": str(threeTimeStamp) + '000', "dataId": dataId}]
                 r = requests.post(url, headers=self.headers, data=json.dumps(data))
                 print(self.outPut(url, data, r))
                 self.assertEqual(r.json()['msg'], '成功')
-
-    def test_03_update_time_log(self):
-        # 获取当前时间戳
-        nowTime = datetime.datetime.now()
-        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
-        data = [
-            {
-                "dataType": '1',  # 1.预计靠泊时间 2.实际靠泊时间 3.装货开始时间 4.开始绑扎时间 5.装货结束时间 6.结束绑扎时间 7.预计开航时间  8.实际开航时间
-                "hatchId": 0,
-                "hatchName": "",
-                "spaceId": 0,
-                "spaceName": "",
-                "taskId": taskId,
-                "timeStamp": str(nowTimeStamp) + '000'
-            }
-        ]
+            elif t['dataType'] == 3:
+                dataId = t['dataId']
+                data = [{"timeStamp": str(nowTimeStamp) + '000', "dataId": dataId}]
+                r = requests.post(url, headers=self.headers, data=json.dumps(data))
+                print(self.outPut(url, data, r))
+                self.assertEqual(r.json()['msg'], '成功')
+            # 实际靠泊时间
+            elif t['dataType'] == 4:
+                dataId = t['dataId']
+                data = [{"timeStamp": str(oneTimeStamp) + '000', "dataId": dataId}]
+                r = requests.post(url, headers=self.headers, data=json.dumps(data))
+                print(self.outPut(url, data, r))
+                self.assertEqual(r.json()['msg'], '成功')
+            # 预计离港时间
+            elif t['dataType'] == 5:
+                dataId = t['dataId']
+                data = [{"timeStamp": str(twoTimeStamp) + '000', "dataId": dataId}]
+                r = requests.post(url, headers=self.headers, data=json.dumps(data))
+                print(self.outPut(url, data, r))
+                self.assertEqual(r.json()['msg'], '成功')
+            # 实际离港时间
+            elif t['dataType'] == 6:
+                dataId = t['dataId']
+                data = [{"timeStamp": str(threeTimeStamp) + '000', "dataId": dataId}]
+                r = requests.post(url, headers=self.headers, data=json.dumps(data))
+                print(self.outPut(url, data, r))
+                self.assertEqual(r.json()['msg'], '成功')

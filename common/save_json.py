@@ -66,3 +66,16 @@ class SaveJson:
         unloadingPath = GetPath().get_unloading_path(fileName=fileName)
         with open(unloadingPath, 'r', encoding='utf-8')as f:
             return json.load(f)
+
+    # 写入外理同步任务文件
+    def write_sync(self, fileName, data):
+        syncPath = GetPath().get_sync_path(fileName=fileName)
+        with open(syncPath, 'w', encoding='utf-8')as f:
+            json.dump(data, f, ensure_ascii=False)
+            print('写入成功:{}'.format(syncPath))
+
+    # 读取外理同步任务文件
+    def read_sync(self, fileName):
+        syncPath = GetPath().get_sync_path(fileName=fileName)
+        with open(syncPath, 'r', encoding='utf-8')as f:
+            return json.load(f)

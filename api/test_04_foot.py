@@ -31,7 +31,8 @@ class TestFoot(unittest.TestCase):
         # 设置请求头
         cls.headers = {
             'os': cls.os,
-            'Authorization': cls.token
+            'Authorization': cls.token,
+            'versionName': '1.6.11'
         }
 
     @classmethod
@@ -140,28 +141,17 @@ class TestFoot(unittest.TestCase):
             print(self.outPut(url, data, r))
             self.assertEqual(r.json()['msg'], '成功')
 
-    def test_09_foot(self):
+    def test_09_download_pl(self):
         """
-        上传照片-清单内前5张照片
+        打尺下载PL
         """
-        url = self.ip + '/api/mms/uploadPlImages'
+        pass
+        url = self.ip + '/api/mms/downloadPl'
         headers = self.headers
-        # 获取明细信息
-        detailInfo = self.g.get_detailInfo(taskId, self.taskType)
-        for i in detailInfo[0:5]:
-            plId = i['plId']
-            plDetailId = i['plDetailId']
-            data = [{
-                "address": "场地号number",
-                "path": "13/task/mms/92/186/16254/4293e7d8-84e4-4df1-ba1a-cd747a5099f0.jpg",
-                "photoRemark": "照片备注",
-                "photoType": 2,
-                "plDetailId": plDetailId,
-                "plId": plId,
-                "taskId": taskId,
-                "url": "http://oss.mars-tech.com.cn/13/task/mms/92/186/16254/4293e7d8-84e4-4df1-ba1a-cd747a5099f0.jpg"
-            }]
-            r = requests.post(url, headers=headers, data=json.dumps(data))
-            print(self.outPut(url, data, r))
-            # 断言
-            self.assertEqual(r.json()['msg'], '成功')
+        plInfo = self.c.read_foot('pl')
+        plId = plInfo[0]['plId']
+        data = {
+            'plId': str(plId)
+        }
+        r = requests.get(url, headers=headers, params=data)
+        print(r)

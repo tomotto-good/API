@@ -1,0 +1,533 @@
+[
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "6*8*100CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "6*8*200CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "8*8*100CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "10*10*100CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "10*10*200CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "15*15*100CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "15*15*（30-400）CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "5*20*200CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "4.5*6.5*100CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "5.5*7.5*100CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "6.5*6.5*100CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木板",
+    "materialId": "2",
+    "norms": "自然宽",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "5*20*200CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "木方",
+    "materialId": "1",
+    "norms": "5*20*400CM",
+    "unite": "立方米（m³）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "三角木",
+    "materialId": "3",
+    "norms": "15*15*20CM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "三角木",
+    "materialId": "3",
+    "norms": "12*12*15CM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 1,
+    "materialType": "木材类",
+    "materialName": "三角木",
+    "materialId": "3",
+    "norms": "15*15*25CM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "绑扎带",
+    "materialId": "4",
+    "norms": "3T",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "绑扎带",
+    "materialId": "4",
+    "norms": "10T",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "扣头",
+    "materialId": "5",
+    "norms": "3T",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "扣头",
+    "materialId": "5",
+    "norms": "10T",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "钢带",
+    "materialId": "6",
+    "norms": "钢带",
+    "unite": "吨（T）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "钢带扣",
+    "materialId": "7",
+    "norms": "钢带扣",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "靠山",
+    "materialId": "8",
+    "norms": "15*15*25CM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "靠山",
+    "materialId": "8",
+    "norms": "15*15*20CM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "靠山",
+    "materialId": "8",
+    "norms": "20*20*25CM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "人字形靠山",
+    "materialId": "9",
+    "norms": "人字形靠山",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "H钢（钢材）",
+    "materialId": "10",
+    "norms": "H钢",
+    "unite": "吨（T）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "钢板",
+    "materialId": "11",
+    "norms": "300x60x14cm",
+    "unite": "片",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "钢丝",
+    "materialId": "13",
+    "norms": "13MM",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "钢丝",
+    "materialId": "13",
+    "norms": "16MM",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "钢丝",
+    "materialId": "13",
+    "norms": "18MM",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "带皮钢丝",
+    "materialId": "14",
+    "norms": "13MM",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "带皮钢丝",
+    "materialId": "14",
+    "norms": "16MM",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "带皮钢丝",
+    "materialId": "14",
+    "norms": "18MM",
+    "unite": "米（m）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "夹头",
+    "materialId": "15",
+    "norms": "16MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "夹头",
+    "materialId": "16",
+    "norms": "18MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "花兰螺丝",
+    "materialId": "17",
+    "norms": "20MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "花兰螺丝",
+    "materialId": "18",
+    "norms": "22MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "花兰螺丝",
+    "materialId": "19",
+    "norms": "24MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "卸扣",
+    "materialId": "20",
+    "norms": "20MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "卸扣",
+    "materialId": "21",
+    "norms": "22MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "卸扣",
+    "materialId": "22",
+    "norms": "24MM",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "链条",
+    "materialId": "23",
+    "norms": "6M",
+    "unite": "根（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "压杆",
+    "materialId": "24",
+    "norms": "压杆",
+    "unite": "根（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "地令",
+    "materialId": "25",
+    "norms": "36T",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 2,
+    "materialType": "钢材类",
+    "materialName": "地令",
+    "materialId": "26",
+    "norms": "30T",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "蓝雨布",
+    "materialId": "27",
+    "norms": "8*30m",
+    "unite": "张",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "蓝雨布",
+    "materialId": "28",
+    "norms": "10*30m",
+    "unite": "张",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "绿油布",
+    "materialId": "29",
+    "norms": "7X12m",
+    "unite": "平方米",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "彩条布",
+    "materialId": "30",
+    "norms": "10*30M",
+    "unite": "张",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "绳网",
+    "materialId": "31",
+    "norms": "8X10m",
+    "unite": "张",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "胶皮",
+    "materialId": "32",
+    "norms": "胶皮",
+    "unite": "卷",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "防火布",
+    "materialId": "33",
+    "norms": "防火布",
+    "unite": "捆",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "麻袋布",
+    "materialId": "34",
+    "norms": "麻袋布",
+    "unite": "捆",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "破布",
+    "materialId": "35",
+    "norms": "破布",
+    "unite": "捆",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "防火胶带",
+    "materialId": "36",
+    "norms": "防火胶带",
+    "unite": "卷",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "紧绳机",
+    "materialId": "37",
+    "norms": "紧绳机",
+    "unite": "只（pcs）",
+    "quantity": 0
+  },
+  {
+    "sn": 3,
+    "materialType": "其他类",
+    "materialName": "其他",
+    "materialId": "38",
+    "norms": "其他",
+    "unite": "其他",
+    "quantity": 0
+  }
+]

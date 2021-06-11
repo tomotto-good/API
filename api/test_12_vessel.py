@@ -12,8 +12,8 @@ class Test_vessel(unittest.TestCase):
         cls.token = r.get_token()
         cls.headers = {
             'os': cls.os,
-            'authorization': cls.token,
-            'version': '1.7.4.3'
+            'Authorization': cls.token,
+            'versionName': '1.6.11'
         }
 
     def test_01_vessel(self, vesselId='63'):

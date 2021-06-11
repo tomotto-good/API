@@ -6,7 +6,6 @@ from common.mysql import Mysql
 from common.read_ini import ReadIni
 from common.save_json import SaveJson
 
-
 class TestCode(unittest.TestCase):
 
     @classmethod
@@ -20,6 +19,8 @@ class TestCode(unittest.TestCase):
         cls.os = r.get_os()
         # 获取手机号
         cls.user = r.get_user()
+        # 获取密码
+        cls.password= r.get_password()
 
     @unittest.skip('跳过')
     def test_01_get_code(self):
@@ -51,18 +52,11 @@ class TestCode(unittest.TestCase):
         """
         短信登陆获取token
         """
-        global headers
         url = self.ip + '/api/v2/vCodeLogin'
         data = {"mobile": "18217484395", "verificationCode": code, "areaCode": "86", "shareCode": ""}
-        if self.os == '2':
-            headers = {
-                'os': self.os,
-                'versionName': '1.6.11'
-            }
-        elif self.os == '1':
-            headers = {
-                'os': self.os
-            }
+        headers = {
+            'os': self.os,
+        }
         r = requests.post(url, data=json.dumps(data), headers=headers)
         print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
         if r.json()['msg'] == '成功':
@@ -73,18 +67,23 @@ class TestCode(unittest.TestCase):
         # 将用户信息写进json文件
         self.s.write_json('user', r.json()['data'])
 
+    # @unittest.skip('跳过')
     def test_03_pwdLogin(self):
+        """
+        密码登录
+        """
         url = self.ip + '/api/v2/pwdLogin'
         headers = {
             "os": self.os,
             'versionName': '1.6.11'
         }
         data = {
-            'username': '18217484395',
-            'password': '123456'
+            'username': self.user,
+            'password': self.password
         }
         r = requests.post(url, headers=headers, data=json.dumps(data))
         print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+        self.assertEqual(r.json()['msg'], '成功')
         if r.json()['msg'] == '成功':
             print("密码登陆成功")
         token = r.json()['data']['token']

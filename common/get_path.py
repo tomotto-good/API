@@ -1,4 +1,5 @@
 import os
+import time
 
 
 class GetPath:
@@ -14,16 +15,24 @@ class GetPath:
         self.CommonPath = os.path.join(self.APIPath, 'common')
         # 获取data目录路径
         self.dataPath = os.path.join(self.APIPath, 'data')
+        # 获取report路径
+        self.reportPath = os.path.join(self.APIPath, 'report')
+        # 获取api路径
+        self.apiPath = os.path.join(self.APIPath, 'api')
 
     # 获取模板路径
     def get_pl_path(self, plName):
         return os.path.join(self.PlPath, plName + '.xlsx')
 
+    # 获取测试报告存放路径
+    def get_report_path(self):
+        return os.path.join(self.reportPath, '莫斯API测试报告{}.html'.format(time.strftime("%Y_%m_%d")))
+
     # 获取配置文件路径
     def get_ini_path(self):
         return os.path.join(self.APIPath, 'config.ini')
 
-    # 获取用户文件路径
+    # 获取数据文件路径
     def get_json_path(self, fileName):
         return os.path.join(self.dataPath, fileName + '.json')
 
@@ -46,3 +55,8 @@ class GetPath:
     def get_unloading_path(self, fileName):
         collectionPath = os.path.join(self.dataPath, 'unloading')
         return os.path.join(collectionPath, fileName + '.json')
+
+    # 获取外理数据文件路径
+    def get_sync_path(self, fileName):
+        syncPath = os.path.join(self.dataPath, 'sync')
+        return os.path.join(syncPath, fileName + '.json')

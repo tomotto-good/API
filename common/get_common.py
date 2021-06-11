@@ -169,6 +169,23 @@ class GetCommon:
             else:
                 print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
                 return False
+        elif taskType == '5':
+            plInfo = self.s.read_collection('pl')
+            plId = plInfo[0]['plId']
+            url = self.ip + '/api/cgi/getPackListDetail'
+            headers = self.headers
+            data = {
+                'taskId': taskId,
+                'plId': plId,
+            }
+            r = requests.get(url, params=data, headers=headers)
+            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+            if r.json()['msg'] == '成功':
+                self.s.write_collection('detail', r.json()['data'])
+                return self.s.read_collection('detail')
+            else:
+                print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
+                return False
 
     def get_plInfo(self, taskId, taskType):
         """
@@ -215,3 +232,8 @@ class GetCommon:
             else:
                 print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
                 return False
+
+    def get_set_vls_material_data(self):
+        """
+        获取系统内绑扎材料信息
+        """

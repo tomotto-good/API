@@ -1,142 +1,62 @@
 import datetime
+import json
 import time
-import unittest
 import warnings
 import requests
-import json
-
-from parameterized import parameterized
-
+import unittest
 from common.get_common import GetCommon
 from common.read_ini import ReadIni
 from common.save_json import SaveJson
 
 
-class TestLoading(unittest.TestCase):
+class TestLoadingPicture(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         warnings.simplefilter('ignore', ResourceWarning)
-        r = ReadIni()
+        cls.r = ReadIni()
         cls.g = GetCommon()
         cls.s = SaveJson()
         # 获取环境
-        cls.ip = r.get_ip()
+        cls.ip = cls.r.get_ip()
         # 设置任务类型
         cls.taskType = '2'
         # 设置登录的类型
-        cls.os = r.get_os()
+        cls.os = cls.r.get_os()
         # 获取token
-        cls.token = r.get_token()
+        cls.token = cls.r.get_token()
         # 设置请求头
         cls.headers = {
             'os': cls.os,
-            'Authorization': cls.token
+            'Authorization': cls.token,
+            'versionName': '1.6.11'
         }
+        # 装前货况图片路径
+        cls.beforeLoadingPath = cls.r.get_loading_picture_path('beforeLoadingPath')
+        # 船舶概况图片路径
+        cls.shipSurveyPath = cls.r.get_loading_picture_path('shipSurveyPath')
+        # 装载过程图片路径
+        cls.eventNodePath = cls.r.get_loading_picture_path('eventNodePath')
+        # 绑扎材料照片路径
+        cls.materialPath = cls.r.get_loading_picture_path('materialPath')
+        # OSS路径
+        cls.ossPath = cls.r.get_oss_path()
 
     @classmethod
-    def tearDownClass(cls) -> None:
-        """
-        从数据库中删除任务
-        """
+    def tearDown(cls) -> None:
+        pass
 
     @staticmethod
-    def outPut(url, data, r):
+    def outPut(url, data=None, r=None):
         return "请求：{} \n数据：{}\n返回：{} ".format(url, data, r.json())
 
-    @parameterized.expand([('杨敏馨测试1', 'Sos', 'Shanghai Port', '军工路码头', '任务描述', '顾鹏')])
-    def test_01_add_task(self, vesselName, voyage, portName, terminalName, description, customer):
-        """
-        添加任务并将任务信息写入文件
-        """
-        global taskName
-        nowTime = datetime.datetime.now()
-        # 获取当前时间戳
-        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
-        threeDayAgo = (datetime.datetime.now() + datetime.timedelta(days=7))
-        # 获取7天后的时间戳
-        timeStamp = int(time.mktime(threeDayAgo.timetuple()))
-        a = '000'
-        url = self.ip + '/task/index/addTask'
-        headers = self.headers
-        if self.os == '1':
-            taskName = '安卓/监装'
-        elif self.os == '2':
-            taskName = 'IOS/监装'
-        data = {"taskName": taskName, "taskType": self.taskType, "vesselName": vesselName,
-                "vesselId": self.g.get_vessel_Id(vesselName), "voyage": voyage, "portName": portName,
-                "terminalName": terminalName, "customer": customer, "expectStartTime": str(nowTimeStamp) + a,
-                "expectEndTime": str(timeStamp) + a, "expectBerthTime": str(nowTimeStamp) + a,
-                "expectDepartureTime": str(timeStamp) + a, "description": description}
-        r = requests.post(url, headers=headers, data=json.dumps(data))
-        # response
-        self.outPut(url, data, r)
-        msg = r.json()['msg']
-        self.assertEqual(msg, '成功')
-        # 将请求返回数据写入JSON文件
-        self.s.write_loading('addTask', r.json()['data'])
-
-    def test_02_import_pl(self, fileName='标准模板'):
-        """
-        验证监装任务--模板导入
-        """
-        global taskId
-        # 获取plId
-        taskInfo = self.s.read_loading('addTask')
-        taskId = taskInfo['taskId']
-        pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName)
-        if pathKey:
-            url = self.ip + '/task/lps/createPl'
-            data = {"taskId": taskId, "shippingOrder": "清单1", "lengthUnit": 2, "weightUnit": 1,
-                    "pathKey": pathKey}
-            headers = self.headers
-            r = requests.post(url, data=json.dumps(data), headers=headers)
-            print("请求：{} \ndata:{} \n返回：{} ".format(url, data, r.json()))
-            msg = r.json()['msg']
-            self.assertEqual(msg, '成功')
-
-    def test_03_start_task(self):
-        """
-        开始任务
-        """
-        url = self.ip + '/task/index/startTask'
-        headers = self.headers
-        data = {
-            'taskId': taskId,
-            'taskType': self.taskType
-        }
-        r = requests.get(url, headers=headers, params=data)
-        print(self.outPut(url, data, r))
-        self.assertEqual(r.json()['msg'], '成功')
-
-    def test_04_add_group(self):
-        """
-        创建工班
-        """
-        nowTime = datetime.datetime.now()
-        # 获取当前时间戳
-        nowTimeStamp = int(time.mktime(nowTime.timetuple()))
-        threeDayAgo = (datetime.datetime.now() + datetime.timedelta(days=7))
-        # 获取7天后的时间戳
-        timeStamp = int(time.mktime(threeDayAgo.timetuple()))
-        url = self.ip + '/task/lps/addGroup'
-        headers = self.headers
-        data = {
-            "description": "白日依山尽，黄河入海流，欲穷千里目，更上一层楼",
-            "groupEndTime": str(timeStamp) + '000',
-            "groupName": "工班 1-1-1",
-            "groupStartTime": str(nowTimeStamp) + '000',
-            "taskId": taskId
-        }
-        r = requests.post(url, headers=headers, data=json.dumps(data))
-        print(self.outPut(url, data, r))
-        self.assertEqual(r.json()['msg'], '成功')
-        # 将创建的工班信息写入JSON文件
-        self.s.write_loading('group', r.json()['data'])
-
-    def test_05_set_before_loading(self):
+    def test_01_set_before_loading(self):
         """
         装前货况上传其他类型照片
         """
+        global taskId
+        # 获取taskId
+        taskInfo = self.s.read_loading('addTask')
+        taskId = taskInfo['taskId']
         url = self.ip + '/task/lps/setBeforeLoading'
         headers = self.headers
         data = [
@@ -144,7 +64,7 @@ class TestLoading(unittest.TestCase):
                 "abnormal": 17,
                 "dataType": '1',  # 1.场地整体数据 2.BL整体数据 3.单件数据
                 "mediaType": '1',  # 媒体类型1：照片3：视频
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "path": self.beforeLoadingPath,
                 "tag": "其他照片标签",  # 照片标签
                 "taskId": taskId,
             }
@@ -153,7 +73,7 @@ class TestLoading(unittest.TestCase):
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
 
-    def test_06_set_before_loading(self):
+    def test_02_set_before_loading(self):
         """
         装前货况上传BL整体照片
         """
@@ -169,7 +89,7 @@ class TestLoading(unittest.TestCase):
                 "dataType": '2',  # 1.场地整体数据 2.BL整体数据 3.单件数据
                 "imageRemark": "照片备注",
                 "mediaType": '1',
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "path": self.beforeLoadingPath,
                 "plId": plId,  # plID
                 "tag": "BL整体照片标签",  # 照片标签
                 "taskId": taskId,
@@ -179,7 +99,7 @@ class TestLoading(unittest.TestCase):
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
 
-    def test_07_set_before_loading(self, number=0):
+    def test_03_set_before_loading(self, number=0):
         """
         装前货况上传明细照片
         """
@@ -195,7 +115,7 @@ class TestLoading(unittest.TestCase):
                 "dataType": '3',  # 1.场地整体数据 2.BL整体数据 3.单件数据
                 "imageRemark": "照片备注",
                 "mediaType": '1',
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "path": self.beforeLoadingPath,
                 "plDetailId": plDetailId,
                 "plId": plId,
                 "tag": "明细照片标签",
@@ -207,7 +127,7 @@ class TestLoading(unittest.TestCase):
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
 
-    def test_08_set_shipSurvey(self):
+    def test_04_set_shipSurvey(self):
         """
         船舶概况上传船舶整体照片
         """
@@ -223,7 +143,7 @@ class TestLoading(unittest.TestCase):
                 'dataId': vesselId,  # 监装船舶数据Id
                 "imageRemark": "船舶整体照片备注",
                 "mediaType": '1',  # 媒体类型1：照片3：视频
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",  # 照片路径
+                "path": self.shipSurveyPath,  # 照片路径
                 "tag": "船舶整体照片标签",
                 "taskId": taskId,
             }
@@ -232,7 +152,7 @@ class TestLoading(unittest.TestCase):
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
 
-    def test_09_set_shipSurvey(self):
+    def test_05_set_shipSurvey(self):
         """
         船舶概况上传舱口舱位照片
         """
@@ -256,7 +176,7 @@ class TestLoading(unittest.TestCase):
                 "hatchName": hatchName,
                 "imageRemark": "舱位照片备注",
                 "mediaType": '1',  # 媒体类型1：照片3：视频
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "path": self.shipSurveyPath,
                 "spaceId": spaceId,  # 舱位id
                 "spaceName": spaceName,
                 "tag": "舱位照片标签",
@@ -267,7 +187,7 @@ class TestLoading(unittest.TestCase):
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
 
-    def test_10_set_eventNode(self):
+    def test_06_set_eventNode(self):
         """
         装载过程上传舱位整体照片
         """
@@ -285,7 +205,7 @@ class TestLoading(unittest.TestCase):
                 "hatchName": hatchName,
                 "imageRemark": "舱位整体照片备注",  # 照片备注
                 "mediaType": '1',  # 媒体类型1：照片3：视频
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "path": self.eventNodePath,
                 "spaceId": spaceId,  # 舱位id
                 "spaceName": spaceName,
                 "tag": "舱位整体照片标签",
@@ -297,7 +217,7 @@ class TestLoading(unittest.TestCase):
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
 
-    def test_11_set_eventNode(self):
+    def test_07_set_eventNode(self):
         """
         装载过程上传BL整体照片
         """
@@ -313,7 +233,7 @@ class TestLoading(unittest.TestCase):
                 "imageRemark": "BL整体照片备注",  # 照片备注
                 "lashingFlag": '1',  # 是否为绑扎照片0:否 1:是
                 "mediaType": '1',  # 媒体类型1：照片3：视频
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "path": self.eventNodePath,
                 "plId": plId,
                 "tag": "BL整体照片标签",
                 "taskId": taskId,
@@ -324,7 +244,7 @@ class TestLoading(unittest.TestCase):
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
 
-    def test_12_set_eventNode(self):
+    def test_08_set_eventNode(self):
         """
         装载过程上传明细照片
         """
@@ -340,7 +260,7 @@ class TestLoading(unittest.TestCase):
                 "imageRemark": "明细照片备注",  # 照片备注
                 "lashingFlag": '1',  # 是否为绑扎照片0:否 1:是
                 "mediaType": '1',  # 媒体类型1：照片3：视频
-                "path": "13/task/lps/96/goods/2020-09-29@14-20-31-70-44d9.jpg",
+                "path": self.eventNodePath,
                 "plDetailId": plDetailId,
                 "plId": plId,
                 "tag": "明细照片标签",
@@ -351,3 +271,50 @@ class TestLoading(unittest.TestCase):
         r = requests.post(url, headers=headers, data=json.dumps(data))
         print(self.outPut(url, data, r))
         self.assertEqual(r.json()['msg'], '成功')
+
+    def test_09_list_vls_materials(self):
+        """
+        获取系统内全部绑扎材料基础数据并写入JSON文件
+        """
+        url = self.ip + '/task/vls/listVlsMaterials'
+        headers = self.headers
+        r = requests.get(url, headers=headers)
+        print(self.outPut(url, r=r))
+        self.assertEqual(r.json()['msg'], '成功')
+        # 写入JSON文件
+        self.s.write_loading('materals', r.json()['data'])
+
+    # @unittest.skip("跳过")
+    def test_10_set_vls_material_data(self):
+        """
+        上传绑扎材料照片
+        """
+        url = self.ip + '/task/vls/setVlsMaterialData'
+        headers = self.headers
+        materalsInfo = self.s.read_loading('materals')
+        lashingMaterialInfo = self.s.read_loading('LashingMaterial')
+        for materals in materalsInfo:
+            for lashingMaterial in lashingMaterialInfo:
+                if materals['id'] == int(lashingMaterial['materialId']):
+                    materialId = materals['id']
+                    materialName = materals['materialName']
+                    materialType = materals['materialType']
+                    norms = lashingMaterial['norms']
+                    data = [
+                        {
+                            "imageRemark": "绑扎照片备注",
+                            "materialId": materialId,  # 材料ID
+                            "materialName": materialName,  # 材料名称
+                            "materialType": materialType,  # 材料类型
+                            "mediaType": 1,  # 媒体类型 1：照片 3：视频
+                            "norms": norms,  # 规格
+                            "path": self.materialPath,  # 照片路径
+                            "unite": "立方米（m³）",  # 单位
+                            'taskId': taskId,
+                            "url": self.ossPath+self.materialPath
+                            # 照片URL
+                        }
+                    ]
+
+                    r = requests.post(url, headers=headers, data=json.dumps(data))
+                    print(self.outPut(url, data, r))
