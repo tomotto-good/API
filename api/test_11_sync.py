@@ -10,6 +10,7 @@ from common.read_ini import ReadIni
 from common.save_json import SaveJson
 
 
+@unittest.skip('跳过')
 class TestLoading(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

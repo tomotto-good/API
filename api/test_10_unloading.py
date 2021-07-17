@@ -27,7 +27,7 @@ class TestUnloading(unittest.TestCase):
         cls.os = r.get_os()
         # 从配置文件中获取token
         cls.token = r.get_token()
-        # 设置请求头
+        # 设置请求
         cls.headers = {
             'os': cls.os,
             'Authorization': cls.token,
@@ -77,7 +77,7 @@ class TestUnloading(unittest.TestCase):
         # 将请求返回数据写入JSON文件
         self.s.write_unloading('addTask', r.json()['data'])
 
-    @parameterized.expand([('清单1', '标准模板'), ('清单2', '数据存在符号')])
+    @parameterized.expand([('清单1', '集港带厂商模板'), ('清单2', '集港模板-厂家')])
     def test_02_import_pl(self, shippingOrder, fileName):
         """
         验证监卸任务--模板导入

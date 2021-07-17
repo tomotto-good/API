@@ -1,7 +1,6 @@
 import unittest
 import warnings
 from common.read_ini import ReadIni
-from common.save_json import SaveJson
 
 
 class TestCode(unittest.TestCase):

@@ -6,6 +6,7 @@ from common.mysql import Mysql
 from common.read_ini import ReadIni
 from common.save_json import SaveJson
 
+
 class TestCode(unittest.TestCase):
 
     @classmethod
@@ -20,7 +21,7 @@ class TestCode(unittest.TestCase):
         # 获取手机号
         cls.user = r.get_user()
         # 获取密码
-        cls.password= r.get_password()
+        cls.password = r.get_password()
 
     @unittest.skip('跳过')
     def test_01_get_code(self):
@@ -70,7 +71,7 @@ class TestCode(unittest.TestCase):
     # @unittest.skip('跳过')
     def test_03_pwdLogin(self):
         """
-        密码登录
+        密码登录(APP)
         """
         url = self.ip + '/api/v2/pwdLogin'
         headers = {

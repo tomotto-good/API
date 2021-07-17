@@ -12,7 +12,7 @@ class runAll:
         # 测试用例存放路径
         self.apiPath = self.path.apiPath
 
-    def run_all(self):
+    def run_app_all(self):
         # 组装测试套件
         suite = unittest.defaultTestLoader.discover(self.apiPath, pattern="test*")
         file_path = self.reportPath
@@ -24,4 +24,4 @@ class runAll:
 
 
 if __name__ == '__main__':
-    runAll().run_all()
+    runAll().run_app_all()

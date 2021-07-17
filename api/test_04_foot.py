@@ -32,7 +32,7 @@ class TestFoot(unittest.TestCase):
         cls.headers = {
             'os': cls.os,
             'Authorization': cls.token,
-            'versionName': '1.6.11'
+            'versionName': '1.7.0'
         }
 
     @classmethod
@@ -78,7 +78,7 @@ class TestFoot(unittest.TestCase):
         # 将请求返回数据写入JSON文件
         self.c.write_foot('addTask', r.json()['data'])
 
-    @parameterized.expand([('清单1', '标准模板')])
+    @parameterized.expand([('清单1', '集港带厂商模板'), ('清单2', '集港模板-厂家')])
     def test_02_import_pl(self, shippingOrder, fileName):
         """
         验证打尺任务--模板导入
@@ -141,17 +141,10 @@ class TestFoot(unittest.TestCase):
             print(self.outPut(url, data, r))
             self.assertEqual(r.json()['msg'], '成功')
 
-    def test_09_download_pl(self):
+    def test_09_screen_detail(self):
         """
-        打尺下载PL
+        筛选明细
         """
-        pass
-        url = self.ip + '/api/mms/downloadPl'
+        url = self.ip + "/api/cgi/getPackListDetail"
         headers = self.headers
-        plInfo = self.c.read_foot('pl')
-        plId = plInfo[0]['plId']
-        data = {
-            'plId': str(plId)
-        }
-        r = requests.get(url, headers=headers, params=data)
-        print(r)
+        data = {}

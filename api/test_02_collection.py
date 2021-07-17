@@ -78,7 +78,7 @@ class TestCollection(unittest.TestCase):
         # 将请求返回数据写入JSON文件
         self.s.write_collection('addTask', r.json()['data'])
 
-    @parameterized.expand([('清单1', '标准模板'), ('清单2', '数据存在符号')])
+    @parameterized.expand([('清单1', '集港带厂商模板'), ('清单2', '集港模板-厂家')])
     def test_02_import_pl(self, shippingOrder, fileName):
         """
         验证集港任务--模板导入
@@ -135,8 +135,10 @@ class TestCollection(unittest.TestCase):
             data = [{"taskId": taskId, "areaId": areaId, "realCgiFinishTime": str(nowTime), "remark": "明细备注",
                      "plId": plId, "licensePlateNumber": "鲁D3638U", "plDetailId": plDetailId, "areaName": areaName,
                      "abnormal": "17"},
-                   ]
+                    ]
             data = json.dumps(data, ensure_ascii=False)
             r = requests.post(url, headers=headers, data=data.encode('utf-8'))
             print(self.outPut(url, data, r))
             self.assertEqual(r.json()['msg'], '成功')
+
+

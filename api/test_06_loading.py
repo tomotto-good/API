@@ -76,7 +76,8 @@ class TestLoading(unittest.TestCase):
         # 将请求返回数据写入JSON文件
         self.s.write_loading('addTask', r.json()['data'])
 
-    def test_02_import_pl(self, fileName='标准模板'):
+    @parameterized.expand([('清单1', '集港带厂商模板'), ('清单2', '集港模板-厂家')])
+    def test_02_import_pl(self, shippingOrder, fileName):
         """
         验证监装任务--模板导入
         """
@@ -87,7 +88,7 @@ class TestLoading(unittest.TestCase):
         pathKey = self.g.check_pl(taskId, self.taskType, fileName=fileName)
         if pathKey:
             url = self.ip + '/task/lps/createPl'
-            data = {"taskId": taskId, "shippingOrder": "清单1", "lengthUnit": 2, "weightUnit": 1,
+            data = {"taskId": taskId, "shippingOrder": shippingOrder, "lengthUnit": 2, "weightUnit": 1,
                     "pathKey": pathKey}
             headers = self.headers
             r = requests.post(url, data=json.dumps(data), headers=headers)
@@ -133,9 +134,3 @@ class TestLoading(unittest.TestCase):
         self.assertEqual(r.json()['msg'], '成功')
         # 将创建的工班信息写入JSON文件
         self.s.write_loading('group', r.json()['data'])
-
-
-
-
-
-

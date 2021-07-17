@@ -38,7 +38,7 @@ class ReadIni:
         return user
 
     def get_password(self):
-        password = self.config.get('user','password')
+        password = self.config.get('user', 'password')
         return password
 
     # 获取打尺图片path
