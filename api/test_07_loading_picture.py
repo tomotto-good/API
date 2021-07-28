@@ -4,7 +4,7 @@ import time
 import warnings
 import requests
 import unittest
-from common.get_common import GetCommon
+from common.getCommon import GetCommon
 from common.read_ini import ReadIni
 from common.save_json import SaveJson
 

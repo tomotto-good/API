@@ -8,7 +8,7 @@ import warnings
 import requests
 import json
 from parameterized import parameterized
-from common.get_common import GetCommon
+from common.getCommon import GetCommon
 from common.read_ini import ReadIni
 from common.save_json import SaveJson
 
